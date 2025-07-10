@@ -1,0 +1,21 @@
+$theme-1: (
+    "bg": #295e86,
+    "bg2": #436d90,
+    "color": whitesmoke,
+    "border-color": #688093,
+);
+@mixin applyTheme($tname, $tmap) {
+    .#{$tname} {
+        background-color: map-get($map: $tmap, $key: bg);
+        color: map-get($map: $tmap, $key: color);
+        .bg-2 {
+            background-color: map-get($map: $tmap, $key: bg2);
+        }
+        * {
+            border-color: map-get($map: $tmap, $key: border-color);
+        }
+        .border {
+            border-color: map-get($map: $tmap, $key: border-color) !important;
+        }
+    }
+}

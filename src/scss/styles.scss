@@ -1,0 +1,47 @@
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+@import "./mixins/theme.scss";
+@import "./utils.scss";
+
+$primary: #65ff65;
+$secondary: #dbdbdb;
+$success: #00ffdd;
+$danger: #ff3636;
+$warning: #fff366;
+$dark: #04212d;
+$dark2: #053142;
+$dark3: #0b4c67;
+$light: #e7e7e7;
+$light2: #dadada;
+$light3: #bebebe;
+$rgb-dark: rgb(33, 19, 13);
+$rgb-dark2: rgb(5, 49, 66);
+$rgb-dark3: rgb(11, 76, 103);
+$rgb-light: rgb(231, 231, 231);
+$rgb-light2: rgb(218, 218, 218);
+$rgb-light3: rgb(190, 190, 190);
+
+$btn-hover-bg-tint-amount: 75%;
+$btn-active-bg-tint-amount: 20%;
+$btn-hover-bg-shade-amount: 75%;
+$btn-active-bg-shade-amount: 20%;
+$border-radius: 0;
+
+$btn-padding-x: .35rem;
+$btn-padding-y: 0.25rem;
+$btn-font-size: 0.75rem;
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+.app-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+@include applyTheme('theme-1', $theme-1);
