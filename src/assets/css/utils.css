@@ -6,8 +6,36 @@
   border-width: 0.75rem !important;
 }
 
+.border-width-1 {
+  border-width: 0.45rem !important;
+}
+
+.border-width-2 {
+  border-width: 1rem;
+}
+
+.border-bottom-none {
+  border-bottom: none !important;
+}
+
 .box-shadow-1 {
   box-shadow: 0px 0px 0.25rem 0.2rem #222;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.w-80 {
+  width: 80% !important;
+}
+
+.w-90 {
+  width: 90% !important;
+}
+
+.mw-550 {
+  max-width: 400px;
 }
 
 /*# sourceMappingURL=utils.css.map */

@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '02-fcc-markdown-previewer',
+  base: '04-fcc-calculator',
   plugins: [react()],
 })

@@ -8,7 +8,7 @@ $secondary: #dbdbdb;
 $success: #00ffdd;
 $danger: #ff3636;
 $warning: #fff366;
-$dark: #04212d;
+$dark: #162d04;
 $dark2: #053142;
 $dark3: #0b4c67;
 $light: #e7e7e7;
@@ -38,10 +38,204 @@ body {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 .app-wrapper {
-    width: 100vw;
+    position: relative;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 @include applyTheme('theme-1', $theme-1);
+@include applyTheme('theme-2', $theme-2);
+
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.calculator-key {
+    cursor: pointer;
+    background-color: #999;
+    padding: 1rem 0.35rem;
+    color: black;
+    outline: 0.125rem solid black;
+    transition: outline 0.1s linear;
+    span {
+        font-weight: 500;
+        text-align: center;
+        display: block;
+    }
+    &:hover {
+        z-index: 1;
+        outline: $warning solid 0.025rem;
+    }
+    &:active, &:focus {
+        background-color: $warning !important;
+        color: $dark !important;
+    }
+    &.key-black {
+        background-color: #222;
+        color: #eee;
+    }
+    &.key-blue {
+        background-color: #222;
+        color: #eee;
+    }
+}
+
+.calculator-display {
+    outline: 0.125rem solid black;
+    margin: 0;
+    width: 100%;
+    padding: 0.75rem 0.25rem;
+    background-color: #ddd;
+    color: #444;
+    min-height: 5rem;
+    display: flex;
+    flex-direction: column;
+    input {
+        cursor: default;
+        border: none;
+        background-color: transparent;
+        transition: font-size 0.4s ease;
+        &:focus, &:active {
+            outline: none;
+        }
+    }
+}
+//HEADER
+
+.header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100vw;
+    padding: 0.25rem 1.6rem;
+    height: 3rem;
+    box-shadow: 10px 0px 2px #111;
+    z-index: 10;
+    backdrop-filter: blur(0.5rem);
+}
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: bold;
+    width: 3rem;
+    font-size: 1rem;
+    transition: color 0.4s;
+    &:hover {
+        color: $primary !important;
+    }
+    img {
+        max-width: 100%;
+    }
+}
+
+//NAV LINKS
+.nav-links {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    li {
+        padding: 0.35rem;
+        border-radius: 5px;
+        transition: background-color 0.2s ease;
+        &:not(:last-child) {
+            margin-right: 0.5rem;
+        }
+        &:hover {
+            background-color: #999;
+        }
+        a.link {
+            text-decoration: none;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            &:hover {
+                color: $primary;
+            }
+            &[aria-expanded="true"] {
+                span {
+                    display: block;
+                }
+            }
+            span {
+                display: none;
+                color: inherit;
+            }
+        }
+    }
+}
+
+//theme-toggler 
+
+.theme-toggler {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 4.5rem ;
+    height: 2.5rem;
+    padding: 0.25rem;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    outline: none;
+    border: 0.125rem solid ;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    background-color: $dark;
+    border-color: $light3;
+    &::before {
+        position: absolute;
+        content: "";
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 1.8rem;
+        height: 75%;
+        margin: auto 0rem;
+        margin-left: 0.25rem;
+        border-radius: 100%;
+        background-color: $light;
+        transition: background-color 0.2s ease, margin-left 0.2s ease, margin-right 0.2s ease;
+    }
+    &.active {
+        background-color: $light;
+        color: $dark;
+        fill: $dark;
+        border-color: $dark;
+        &:hover {
+            fill: $warning;
+        }
+        &::before {
+            margin-left: 2.25rem;
+            background-color: $dark;
+        }
+    }
+    &:hover {
+        border-color: $primary;
+        background-color: #ccc;
+        fill: $blue-700;
+    }
+    svg {
+        fill: inherit;
+        transition: fill 0.2s ease;
+    }
+    &.dark {
+        color: $dark;
+        transform: rotate(180deg);
+        &:hover {
+            background-color: #1115;
+        }
+    }
+
+}

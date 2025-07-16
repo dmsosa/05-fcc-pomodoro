@@ -1,21 +1,46 @@
 $theme-1: (
-    "bg": #295e86,
-    "bg2": #436d90,
+    "bg1": #07042d,
+    "bg2": #053142,
+    "bg3": #0b4c67,
     "color": whitesmoke,
     "border-color": #688093,
+    "link-color": #79fc6b,
 );
+$theme-2: (
+    "bg1": #e7e7e7,
+    "bg2": #dadada,
+    "bg3": #bebebe,
+    "color": #162d04,
+    "border-color": #0b4c67,
+    "link-color": $warning,
+);
+$dark: #162d04;
+$dark2: #053142;
+$dark3: #0b4c67;
+$light: #e7e7e7;
+$light2: #dadada;
+$light3: #bebebe;
 @mixin applyTheme($tname, $tmap) {
-    .#{$tname} {
-        background-color: map-get($map: $tmap, $key: bg);
-        color: map-get($map: $tmap, $key: color);
+    
+    body.#{$tname} {
+        background-color: map-get($map: $tmap, $key: bg1);
+        color: map-get($map: $tmap, $key: color) ; 
+        .bg-1 {
+            background-color: map-get($map: $tmap, $key: bg1);
+        }
+
         .bg-2 {
             background-color: map-get($map: $tmap, $key: bg2);
         }
-        * {
-            border-color: map-get($map: $tmap, $key: border-color);
+        .bg-3 {
+            background-color: map-get($map: $tmap, $key: bg3);
+        }
+        .link {
+            color: map-get($map: $tmap, $key: link-color) !important;
         }
         .border {
             border-color: map-get($map: $tmap, $key: border-color) !important;
         }
     }
+    
 }
