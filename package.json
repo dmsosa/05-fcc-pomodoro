@@ -1,7 +1,7 @@
 {
-  "name": "04-fcc-calculator",
+  "name": "05-fcc-pomodoro",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"sass -w src/scss/:src/assets/css/\"",

@@ -1,6 +1,12 @@
 import * as React from 'react';
-import { FaPause, FaPlay } from 'react-icons/fa';
+import { FaArrowRight, FaPause, FaPlay } from 'react-icons/fa';
 import { IoMdRefresh } from 'react-icons/io';
+import beginSound from '../assets/timer-begin-sound.mp3';
+import endSound from '../assets/timer-end-sound.mp3';
+import { parseTime } from '../helper/helper';
+import { TimeChanger } from './TimeChanger';
+
+
 
 export function Pomodoro() {
     const [ mode, setMode ] = React.useState('session');
@@ -10,6 +16,7 @@ export function Pomodoro() {
     const [ play, setPlay ] = React.useState(false);
 
     React.useEffect(() => {
+
       let timeout;
       if (play) {
         timeout = setTimeout(() => {
@@ -24,22 +31,13 @@ export function Pomodoro() {
         }, 1000);
       }
       return () => clearInterval(timeout);
-    }, [play])
+    }, [play, currentTime])
 
     const togglePlay = () => {
+      if (currentTime === sessionTime || currentTime === breakTime ) {
+        playSound();
+      }
       setPlay(!play);
-    }
-    const handleRefresh = () => {
-      setPlay(!play);
-      setBreakTime(5 * 60);
-      setSessionTime(25 * 60);
-      setCurrentTime(25 * 60);
-      setMode('session');
-    }
-    const handleTimeChange = (e) => {
-      const name = e.currentTarget.name;
-      const value = e.currentTarget.value;
-      name === 'break-length' ? setBreakTime(value) : setSessionTime(value);
     }
     const handleTimeEnd = () => {
       setPlay(false);
@@ -50,34 +48,45 @@ export function Pomodoro() {
         setMode('break');
         setCurrentTime(breakTime);
       }
+      playSound();
     }
-    const parseTime = () => {
-      const min = Math.floor(currentTime / 60).toString().padStart(2, '0');
-      const sec = (currentTime % 60).toString().padStart(2, '0');
-      return `${min}:${sec}`;
+    const handleRefresh = () => {
+      setPlay(false);
+      setBreakTime(5 * 60);
+      setSessionTime(25 * 60);
+      setCurrentTime(25 * 60);
+      setMode('session');
+    }
+
+
+    const playSound = () => {
+      let sound;
+      if (currentTime === sessionTime | currentTime === breakTime) {
+        sound = document.getElementById('begin-sound');
+      } else {
+        sound = document.getElementById('end-sound');
+      }
+      sound.play();
     }
   return (
     <div id='pomodoro' className='container mw-550'>
       <div id="clock">
-        <h1>{parseTime()}</h1>
+        <h1>{parseTime(currentTime)}</h1>
       </div>
-      <div className="d-flex justify-content-center align-items-center">
+      <div className="d-flex justify-content-center align-items-center bg-2">
         <button onClick={togglePlay}>
           { play ? <FaPause/>:<FaPlay/>}
         </button>
         <button onClick={handleRefresh}>
           <IoMdRefresh/>
         </button>
+        <button><FaArrowRight/></button>
       </div>
-      <div className="d-flex justify-content-center align-items-center">
-        <div>
-          <input type="number" name="break-length" id="break-length"  min={5} max={20} value={breakTime}/>
-          <label htmlFor="break-length">break time</label>
-        </div>
-        <div>
-          <input type="number" name="session-length" id="session-length"  min={15} max={60} value={sessionTime} onChange={handleTimeChange}/>
-          <label htmlFor="session-length">session time</label>
-        </div>
+      <div className="d-flex justify-content-center align-items-center position-relative bg-3">
+        <audio id='begin-sound' src={beginSound}></audio>
+        <audio id='end-sound' src={endSound}></audio>
+        <TimeChanger timeName={'break-time'} timeToChange={breakTime} setTimeToChange={setBreakTime} />
+        <TimeChanger timeName={'session-time'} timeToChange={sessionTime} setTimeToChange={setSessionTime} />
       </div>
     </div>
   );
