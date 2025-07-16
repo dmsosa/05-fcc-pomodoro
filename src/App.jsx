@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Calculator } from './components/Calculator';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import ThemeToggler from './components/Widgets/ThemeToggler';
+import { Pomodoro } from './components/Pomodoro';
 
 function App() {
   const [ theme, setTheme ] = useState('theme-1');
@@ -23,7 +23,7 @@ function App() {
       <ThemeToggler theme={theme} setTheme={setTheme} />
       <Header theme={theme}/>
       <section id={'app-wrapper'} className={'app-wrapper'}>
-        <Calculator/>
+        <Pomodoro/>
       </section>
       <Footer/>
     </>
