@@ -45,10 +45,10 @@ function App() {
     }
   };
   return (
-    <div id={`app-wrapper`} className={`${theme} grid-container`}>
-        <div className="grid-item">
+    <div id={`app-wrapper`} className={`${theme} grid-container overflow-hidden h-100`}>
+        <div className={`grid-item ${inputFullscreen ? 'grid-item-fullscreen':''}`}>
           <div className={`box ${inputFullscreen ? 'box-fullscreen':''}`}>
-            <div className="box-header">
+            <div className="bg-2 px-2 py-1 d-flex justify-content-between align-items-center">
               <FaFreeCodeCamp className='logo' />
               { inputFullscreen ? <MdFullscreenExit role='button' onClick={() => {
                 toggleFullscreen('input');
@@ -57,14 +57,14 @@ function App() {
                 toggleFullscreen('input');
               }} />} 
             </div>
-            <div className="p3">
+            <div className="p-3">
               <MarkdownInput state={markdownState} setState={setMarkdownState} />
             </div>
           </div>
         </div>
-        <div className="grid-item">
+        <div className={`grid-item ${previewFullscreen ? 'grid-item-fullscreen':''}`}>
           <div className={`box ${previewFullscreen ? 'box-fullscreen':''}`}>
-            <div className="box-header">
+            <div className="bg-2 px-2 py-1 d-flex justify-content-between align-items-center">
               <FaFreeCodeCamp className='logo' />
               { previewFullscreen ? <MdFullscreenExit role='button' onClick={() => {
                 toggleFullscreen('preview');
@@ -72,7 +72,7 @@ function App() {
               <MdFullscreen role='button' onClick={() => {
                 toggleFullscreen('preview');
               }} />}            </div>
-            <div className="p3">
+            <div className="p-3">
                 <MarkdownPreview preview={markdownState.preview} />
             </div>
           </div>

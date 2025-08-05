@@ -37,9 +37,7 @@ body {
     box-sizing: border-box;
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     overflow: hidden;
-    width: 100vw;
-    height: 100%;
-    overflow: hidden
+
 }
 
 .grid-container {
@@ -53,8 +51,6 @@ body {
 }
 .box {
     border: 0.4rem solid $primary;
-    padding: 1.75rem 1.25rem;
-    border-radius: 0 !important;
 }
 .box-fullscreen {
         height: 100vh;
