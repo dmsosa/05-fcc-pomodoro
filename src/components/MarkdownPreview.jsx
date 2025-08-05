@@ -1,6 +1,6 @@
-function MarkdownPreview({ state }) {
+function MarkdownPreview({ preview }) {
     return ( 
-        <div id="preview" dangerouslySetInnerHTML={{__html: state.preview}}></div>
+        <div id="preview" className="markdown-preview" dangerouslySetInnerHTML={{__html: preview}}></div>
      );
 }
 

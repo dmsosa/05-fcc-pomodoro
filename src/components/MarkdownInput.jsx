@@ -1,8 +1,10 @@
+import { marked } from "marked";
+
 function MarkdownInput({ state, setState }) {
 
     const handleInputChange = (e) => {
       const value = e.currentTarget.value;
-      setState((prevState) => ({...prevState, input: value }))
+      setState({input: value, preview: marked(value)});
     }
 
     return ( 
