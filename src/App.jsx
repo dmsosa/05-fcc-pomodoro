@@ -3,31 +3,24 @@ import { initialText } from './markdown';
 import { marked } from 'marked';
 import { FaFreeCodeCamp } from 'react-icons/fa';
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md';
-import MarkdownInput from './components/MarkdownInput';
-import MarkdownPreview from './components/MarkdownPreview';
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 function App() {
-  const [ theme, setTheme ] = useState('theme-1');
   const [ markdownState, setMarkdownState ] = useState(
     { 
-      input: initialText, 
+      editor: initialText, 
       preview: marked(initialText),
       inputFullscreen: false,
       previewFullscreen: false,
     });
 
-  const { inputFullscreen, previewFullscreen } = markdownState;
+  const { editor, preview, inputFullscreen, previewFullscreen } = markdownState;
 
-  const toggleTheme = () => {
-    const randIndex = getRandomInt(1, 5);
-    setTheme(`theme-${randIndex}`)
-  };
+  const handleInputChange = (e) => {
+    const value = e.currentTarget.value;
+    setState((prev) =>( {...prev, input: value, preview: marked(value)}));
+  }
+
 
   const toggleFullscreen = (target) => {
     if (target === 'input') {
@@ -44,39 +37,75 @@ function App() {
       }));
     }
   };
+  
+  const onMouseDown = (e) => {
+    e.preventDefault();
+    const handler = e.currentTarget;
+    const grid = document.querySelector('.grid');
+    if (!grid) return;
+    const target = handler.dataset.target;
+    
+    const startDrag = (event) => {
+      if (target === 'row') {
+        const topPos = Math.round((event.clientY * 100) / window.innerHeight);
+        const botPos = 100 - topPos;
+        grid.style.gridTemplateRows = `minmax(25%, ${topPos}%) minmax(25%, ${botPos}%)`;
+        handler.style.top = `min(75%, (max(25%, ${topPos}%)))`;
+        console.log(topPos)
+      } else if (target === 'col') {
+        const leftPos = Math.round((event.clientY * 100) / window.innerHeight);
+        const rightPos = 100 - topPos;
+        grid.style.gridTemplateRows = `minmax(25%, ${leftPos}%) minmax(25%, ${rightPos}%)`;
+        handler.style.top = `min(75%, (max(25%, ${leftPos}%)))`;
+      }
+    }
+    const stopDrag = () => {
+      document.removeEventListener('mousemove', startDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+      document.addEventListener('mousemove', startDrag);
+      document.addEventListener('mouseup', stopDrag);
+    } 
   return (
-    <div id={`app-wrapper`} className={`${theme} grid-container overflow-hidden h-100`}>
-        <div className={`grid-item ${inputFullscreen ? 'grid-item-fullscreen':''}`}>
-          <div className={`box ${inputFullscreen ? 'box-fullscreen':''}`}>
-            <div className="bg-2 px-2 py-1 d-flex justify-content-between align-items-center">
+    <div id="app-wrapper" className="app-wrapper">
+      <div className="grid">
+        <div className={`grid-item border border-primary border-width-0 ${inputFullscreen ? 'fullscreen':''}`}>
+            <div className="box-header">
               <FaFreeCodeCamp className='logo' />
-              { inputFullscreen ? <MdFullscreenExit role='button' onClick={() => {
+              <button className="btn" onClick={() => {
                 toggleFullscreen('input');
-              }} /> : 
-              <MdFullscreen role='button' onClick={() => {
-                toggleFullscreen('input');
-              }} />} 
+              }}>
+                { inputFullscreen ? <MdFullscreenExit/> : <MdFullscreen /> }
+              </button>
             </div>
-            <div className="p-3">
-              <MarkdownInput state={markdownState} setState={setMarkdownState} />
+            <div className="box-content">
+              <textarea id="editor" className='editor' onChange={handleInputChange} value={editor} ></textarea>
             </div>
-          </div>
         </div>
-        <div className={`grid-item ${previewFullscreen ? 'grid-item-fullscreen':''}`}>
-          <div className={`box ${previewFullscreen ? 'box-fullscreen':''}`}>
-            <div className="bg-2 px-2 py-1 d-flex justify-content-between align-items-center">
+        <div className={`grid-item border border-primary border-width-0 ${previewFullscreen ? 'fullscreen':''}`}>
+            <div className="box-header">
               <FaFreeCodeCamp className='logo' />
-              { previewFullscreen ? <MdFullscreenExit role='button' onClick={() => {
+              <button className="btn" onClick={() => {
                 toggleFullscreen('preview');
-              }} /> : 
-              <MdFullscreen role='button' onClick={() => {
-                toggleFullscreen('preview');
-              }} />}            </div>
-            <div className="p-3">
-                <MarkdownPreview preview={markdownState.preview} />
+              }}>
+                { previewFullscreen ? <MdFullscreenExit/> : <MdFullscreen /> }
+              </button>          </div>
+            <div className="box-content p-2">
+                <div id="preview" dangerouslySetInnerHTML={{__html: preview}}></div>
             </div>
-          </div>
         </div>
+        <a href="" className="handler handler-row" 
+        onClick={(e) => { e.preventDefault() }}
+        onMouseDown={onMouseDown}
+        data-target="row"
+        ></a>
+        <a href="" className="handler handler-col" 
+        onClick={(e) => { e.preventDefault() }}
+        onMouseDown={onMouseDown}
+        data-target="col"
+        ></a>
+      </div>
+
     </div>
   )
 }

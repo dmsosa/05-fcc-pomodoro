@@ -1,17 +1,17 @@
-.border-width-0 {
-  border-width: 0.5rem;
-}
+/* Error: Undefined variable.
+ *   ,
+ * 9 |     border-color: $primary;
+ *   |                   ^^^^^^^^
+ *   '
+ *   src\scss\utils.scss 9:19  root stylesheet */
 
-.border-width-1 {
-  border-width: 0.75rem !important;
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined variable.\a   \2577 \a 9 \2502      border-color: $primary;\d\a   \2502                    ^^^^^^^^\a   \2575 \a   src\\scss\\utils.scss 9:19  root stylesheet";
 }
-
-.box-shadow-1 {
-  box-shadow: 0px 0px 0.25rem 0.2rem #222;
-}
-
-.overflow-hidden {
-  overflow: hidden !important;
-}
-
-/*# sourceMappingURL=utils.css.map */
