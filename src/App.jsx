@@ -1,111 +1,126 @@
-import { useState } from 'react'
-import { initialText } from './markdown';
-import { marked } from 'marked';
-import { FaFreeCodeCamp } from 'react-icons/fa';
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md';
+import { useEffect, useRef, useState } from 'react'
+import beep from "./assets/beep.mp3";
+import ChangeTime from './components/ChangeTime';
 
+//HELPERS
+// Time formatting helper
+export const parseTime = (seconds) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
+
+export const clamp = (n) => Math.min(60 * 60, Math.max(n, 0 * 60));
+//
+const DEFAULTS = {
+  SESSION: 25 * 60,
+  BREAK: 5 * 60,
+  LONG: 25 * 60,
+  CYCLES: 5 * 60,
+}
+const  ls = {
+  get: (key, fallback) => {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch (err) {
+      return fallback;
+    }
+  },
+  set: (key, val) => {
+    try {
+      const value = localStorage.setItem(key, JSON.stringify(val));
+      return value ? JSON.parse(value) : fallback;
+    } catch {
+    }
+  },
+  remove: (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+  }
+}
+}
+
+function useInterval(cb, d) {
+  const callbackRef = useRef();
+  useEffect(() => {
+    if (!cb) return;
+    callbackRef.current = cb;
+  }, [cb])
+  useEffect(() => {
+    if (!d) return;
+    const id = setInterval( () => {callbackRef.current && callbackRef.current()}, d);
+    return () => clearInterval(id);
+  }, [d])
+}
 
 function App() {
-  const [ markdownState, setMarkdownState ] = useState(
-    { 
-      editor: initialText, 
-      preview: marked(initialText),
-      inputFullscreen: false,
-      previewFullscreen: false,
-    });
-
-  const { editor, preview, inputFullscreen, previewFullscreen } = markdownState;
-
-  const handleInputChange = (e) => {
-    const value = e.currentTarget.value;
-    setState((prev) =>( {...prev, input: value, preview: marked(value)}));
+  const [ settings, setSettings ] = useState(ls.get('pomodoro:settings', DEFAULTS));
+  const [ mode, setMode ] = useState('session');
+  const [ remaining, setRemaining ] = useState(settings.SESSION);
+  const [ running, setRunning ] = useState(false);
+  const [ autoplay, setAutoplay ] = useState(false);
+  const [ round, setRound ] = useState(1);
+  
+  const countdown = () => {
+    if (remaining === 0) {
+      handleFinish();
+    } else {
+      setRemaining((r) => r-1);
+    }
+  }
+  const makeBeep = () => {
+    const audio = document.getElementById('beep');
+    audio && audio.play();
   }
 
+  useInterval(countdown, running ? 1000 : null);
 
-  const toggleFullscreen = (target) => {
-    if (target === 'input') {
-      setMarkdownState(prevState => ({
-        ...prevState,
-        inputFullscreen: !inputFullscreen,
-        previewFullscreen: false
-      }));
-    } else if (target === 'preview') {
-      setMarkdownState(prevState => ({
-        ...prevState,
-        inputFullscreen: false,
-        previewFullscreen: !previewFullscreen
-      }));
-    }
-  };
-  
-  const onMouseDown = (e) => {
-    e.preventDefault();
-    const handler = e.currentTarget;
-    const grid = document.querySelector('.grid');
-    if (!grid) return;
-    const target = handler.dataset.target;
-    
-    const startDrag = (event) => {
-      if (target === 'row') {
-        const topPos = Math.round((event.clientY * 100) / window.innerHeight);
-        const botPos = 100 - topPos;
-        grid.style.gridTemplateRows = `minmax(25%, ${topPos}%) minmax(25%, ${botPos}%)`;
-        handler.style.top = `min(75%, (max(25%, ${topPos}%)))`;
-        console.log(topPos)
-      } else if (target === 'col') {
-        const leftPos = Math.round((event.clientY * 100) / window.innerHeight);
-        const rightPos = 100 - topPos;
-        grid.style.gridTemplateRows = `minmax(25%, ${leftPos}%) minmax(25%, ${rightPos}%)`;
-        handler.style.top = `min(75%, (max(25%, ${leftPos}%)))`;
+  const toggleRun = () => setRunning((r) => !r);
+
+
+  const handleFinish = () => {
+    makeBeep();
+    const nextRound = round + 1;
+    if (mode === 'session') {
+      if (nextRound % settings.CYCLES === 0 ) {
+        setMode('long');
+        setRemaining(settings.LONG);
+      } else {
+        setMode('break');
+        setRemaining(settings.BREAK);
       }
+        setRound(nextRound);
+        setRunning(autoplay ? true : false);
+    } else {
+        setMode('session');
+        setRemaining(settings.SESSION);
+        setRound(nextRound);
+        setRunning(autoplay ? true : false);
     }
-    const stopDrag = () => {
-      document.removeEventListener('mousemove', startDrag);
-      document.removeEventListener('mouseup', stopDrag);
-    }
-      document.addEventListener('mousemove', startDrag);
-      document.addEventListener('mouseup', stopDrag);
-    } 
+  }
+  const handleRefresh = () => {
+    setRunning(false);
+    setMode('session');
+    setRemaining(settings.SESSION);
+    setCycles(settings.CYCLES);
+    const audio = document.getElementById('beep');
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  }
+  
+
   return (
     <div id="app-wrapper" className="app-wrapper">
-      <div className="grid">
-        <div className={`grid-item border border-primary border-width-0 ${inputFullscreen ? 'fullscreen':''}`}>
-            <div className="box-header">
-              <FaFreeCodeCamp className='logo' />
-              <button className="btn" onClick={() => {
-                toggleFullscreen('input');
-              }}>
-                { inputFullscreen ? <MdFullscreenExit/> : <MdFullscreen /> }
-              </button>
-            </div>
-            <div className="box-content">
-              <textarea id="editor" className='editor' onChange={handleInputChange} value={editor} ></textarea>
-            </div>
-        </div>
-        <div className={`grid-item border border-primary border-width-0 ${previewFullscreen ? 'fullscreen':''}`}>
-            <div className="box-header">
-              <FaFreeCodeCamp className='logo' />
-              <button className="btn" onClick={() => {
-                toggleFullscreen('preview');
-              }}>
-                { previewFullscreen ? <MdFullscreenExit/> : <MdFullscreen /> }
-              </button>          </div>
-            <div className="box-content p-2">
-                <div id="preview" dangerouslySetInnerHTML={{__html: preview}}></div>
-            </div>
-        </div>
-        <a href="" className="handler handler-row" 
-        onClick={(e) => { e.preventDefault() }}
-        onMouseDown={onMouseDown}
-        data-target="row"
-        ></a>
-        <a href="" className="handler handler-col" 
-        onClick={(e) => { e.preventDefault() }}
-        onMouseDown={onMouseDown}
-        data-target="col"
-        ></a>
-      </div>
-
+      <h1 id="time-left">{parseTime(remaining)}</h1>
+      <h1 id="timer-label">{mode.toUpperCase()}</h1>
+      <button id="start_stop" onClick={toggleRun}>{running ? 'PAUSE':'START'}</button>
+      <ChangeTime target={'session'} time={settings.SESSION} setSettings={setSettings} setRemaining={setRemaining}></ChangeTime>
+      <ChangeTime target={'break'} time={settings.BREAK} setSettings={setSettings} setRemaining={setRemaining}></ChangeTime>
+      <button id="reset" onClick={handleRefresh}></button>
+      <audio src={beep} id="beep"></audio>
     </div>
   )
 }
