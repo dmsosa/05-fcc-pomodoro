@@ -14,3 +14,54 @@
 .overflow-hidden {
     overflow: hidden !important;
 }
+
+
+.container-1 {
+    background-color: $dark;
+}
+.container-2 {
+    background-color: $dark2;
+}
+.container-3 {
+    background-color: $dark3;
+}
+.overflow-hidden {
+    overflow: hidden !important;
+}
+.opacity-1 {
+    opacity: 1 !important;
+}
+.visible {
+    visibility: 1 !important;
+}
+.translateY-0 {
+    transform: translateY(0) !important;
+}
+.border-dark {
+    border-color: $dark !important;
+}
+.border-top-dark {
+    border-top: 0.125rem $dark solid !important;;
+}
+.border-top-bg1 {
+    border-color: $dark transparent transparent transparent !important;;
+    &::before {
+            border-color: $dark transparent transparent transparent !important;;
+    }
+    &::after {
+            border-color: $dark transparent transparent transparent !important;;
+    }
+}
+.border-top-primary {
+    border-top: 0.125rem $primary solid !important;;
+}
+.border-bottom-primary {
+    border-bottom: 0.125rem $primary solid !important;
+}
+
+.border-width-2 {
+    border-width: 0.5rem !important;
+}
+.basis-100 {
+    flex-basis: 100%;
+}
