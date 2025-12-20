@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import beep from "./assets/beep.mp3";
 import ChangeTime from './components/ChangeTime';
 import { FaTruckLoading } from 'react-icons/fa';
@@ -6,13 +6,13 @@ import ModeButton from './components/ModeButton';
 
 //HELPERS
 // Time formatting helper
-export const parseTime = (seconds) => {
+export const parseTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
-export const clamp = (n) => Math.min(60 * 60, Math.max(n, 5 * 60));
+export const clamp = (n: number) => Math.min(60 * 60, Math.max(n, 5 * 60));
 //
 const DEFAULTS = {
   SESSION: 25 * 60,
@@ -20,31 +20,9 @@ const DEFAULTS = {
   LONG: 15 * 60,
   CYCLES: 4,
 }
-const  ls = {
-  get: (key, fallback) => {
-    try {
-      const value = localStorage.getItem(key);
-      return value ? JSON.parse(value) : fallback;
-    } catch (err) {
-      return fallback;
-    }
-  },
-  set: (key, val) => {
-    try {
-      const value = localStorage.setItem(key, JSON.stringify(val));
-      return value ? JSON.parse(value) : fallback;
-    } catch {
-    }
-  },
-  remove: (key) => {
-  try {
-    localStorage.removeItem(key);
-  } catch {
-  }
-}
-}
 
-function useInterval(cb, d) {
+
+function useInterval(cb: () => void, d: number) {
   const callbackRef = useRef();
   useEffect(() => {
     if (!cb) return;
@@ -64,7 +42,8 @@ function App() {
   const [ running, setRunning ] = useState(false);
   const [ autoplay, setAutoplay ] = useState(false);
   const [ round, setRound ] = useState(1);
-  
+    console.log('env vars: ', import.meta.env.VITE_API_URL, import.meta.env.VITE_API_KEY, import.meta.env.VITE_APP_TITLE);
+
   const countdown = () => {
     if (remaining === 0) {
       handleFinish();
@@ -106,12 +85,12 @@ function App() {
     setRunning(false);
     setMode('session');
     setRemaining(settings.SESSION);
-    const audio = document.getElementById('beep');
+    const audio = document.getElementById('beep') as HTMLAudioElement;
     if (!audio) return;
     audio.pause();
     audio.currentTime = 0;
   }
-  const  handleChangeMode = (e) => {
+  const  handleChangeMode = (e: MouseEvent<HTMLButtonElement>) => {
     const btn = e.currentTarget;
     const target = btn.dataset.target;
     switch (target) {
@@ -135,7 +114,7 @@ function App() {
       };
     }
 
-    const audio = document.getElementById('beep');
+    const audio = document.getElementById('beep') as HTMLAudioElement;
     if (!audio) return;
     audio.pause();
     audio.currentTime = 0;
