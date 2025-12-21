@@ -1,5 +1,5 @@
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { clamp, parseTime } from "../App"
+import { clamp, parseTime } from "../PomodoroApp"
 
 export default function ChangeTime({ time, running, target, mode, setSettings, setRemaining }) {
     const ids = {
