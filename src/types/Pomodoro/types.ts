@@ -1,10 +1,12 @@
 export type TPomodoroOptions = {
+    min: number,
+    max: number,
     mode: TPomodoroMode,
-    work: number,
+    session: number,
     break: number,
     long: number,
     rounds: number,
     cycles: number,
     autoplay: boolean,
 }
-export type TPomodoroMode = 'work' | 'break' | 'long';
+export type TPomodoroMode = 'session' | 'break' | 'long';
