@@ -21,5 +21,10 @@ export const ls = {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {}
+  },
+  remove: (key: string) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
   }
 };

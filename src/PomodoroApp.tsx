@@ -1,17 +1,18 @@
 import beep from "./assets/beep.mp3";
 import startBeep from "./assets/beep.mp3";
 import { FaTruckLoading } from 'react-icons/fa';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TPomodoroMode, TPomodoroOptions } from "./types/Pomodoro/types";
-import Clock from "./components/Pomodoro/Clock";
 import ChangeTime from "./components/Pomodoro/ChangeTime";
-import { ls } from "./helpers";
+import { ls, parseTime } from "./helpers";
+import { useInterval } from "./hooks";
+import ModeButton from "./components/Pomodoro/ModeButton";
 
-
+const POMODORO_STORAGE_KEY = 'pomodoro:options';
 const DEFAULTS: TPomodoroOptions = {
-  min: 1 * 60,
+  min: 1 ,
   max: 60 * 60,
-  mode: 'session',
+  lastMode: 'session',
   session: 25 * 60,
   break: 5 * 60,
   long: 15 * 60,
@@ -25,23 +26,28 @@ const POMODORO_MODES: TPomodoroMode[] = ['session', 'break', 'long'];
 
 
 function PomodoroApp() {
-  const [ options, setOptions ] = useState<TPomodoroOptions>(ls.get('pomodoro:options', DEFAULTS));
+  const [ options, setOptions ] = useState<TPomodoroOptions>(ls.get(POMODORO_STORAGE_KEY, DEFAULTS));
   const [ mode, setMode ] = useState<TPomodoroMode>('session');
   const [ isRunning, setIsRunning ] = useState(false);
   const [ remaining, setRemaining ] = useState( options[mode] );
   const startBeepRef = useRef<HTMLAudioElement | null>(null);
   const beepRef = useRef<HTMLAudioElement | null>(null);
+  
+  //handelModeChange vs useEffect(alles automatisch reagieren, methoden in unseren KindKomponente stehen.)
+  const countdown = () => {
+        if (remaining === 0) {
+          
+          if (!options.autoplay) {
+            handleTimeOver();
+          }
+        } else {        
+            setRemaining((r) => r-1);
+        }
+    }
 
-  const playAlarm = () => {
-  const alarm = beepRef.current;
-  if (!alarm) return;
-      alarm && alarm.play();
-  }
-  const pauseAlarm = () => {
-  const alarm = beepRef.current;
-  if (!alarm) return;
-      alarm && alarm.pause();
-  }
+
+  useInterval(countdown, isRunning ? 1000 : null);
+
   const handleTimeOver = () => {
     if (!options.autoplay) {
       setIsRunning(false);
@@ -52,14 +58,17 @@ function PomodoroApp() {
       const nextRound = prev.rounds + 1;
       let nextMode: TPomodoroMode = 'session';
       //Else wenn nextRound mod cycles === 0 -> long, else break
-      if (prev.mode === 'session') {
+      if (prev.lastMode === 'session') {
         if (nextRound % 2 === 0) {
           nextMode = 'long';
         } else {
           nextMode = 'break';
         }
       };
-      return {...prev, mode: nextMode };
+
+      const newState = { ...prev, lastMode: nextMode, rounds: prev.rounds + 1 };
+      ls.set(POMODORO_STORAGE_KEY, newState);
+      return newState;
     }); 
   }
 
@@ -83,42 +92,36 @@ function PomodoroApp() {
   //   }
   // }
   const handleReset = () => {
-    setIsRunning(false);
     setOptions(DEFAULTS);
+    setRemaining(DEFAULTS['session']);
+    setIsRunning(false);
     setMode('session');
+    ls.remove(POMODORO_STORAGE_KEY);
   }
-  // const  handleChangeMode = (e: MouseEvent<HTMLButtonElement>) => {
-  //   const btn = e.currentTarget;
-  //   const target = btn.dataset.target;
-  //   switch (target) {
-  //     case 'break': {
-  //       setMode('break');
-  //       setRemaining(settings.BREAK);
-  //       setRunning(false);
-  //       break;
-  //     };
-  //     case 'long': {
-  //       setMode('long');
-  //       setRemaining(settings.LONG);
-  //       setRunning(false);
-  //       break;
-  //     };
-  //     case 'session': {
-  //       setMode('session');
-  //       setRemaining(settings.SESSION);
-  //       setRunning(false);        
-  //       break;
-  //     };
-  //   }
 
-  //   const audio = document.getElementById('beep') as HTMLAudioElement;
-  //   if (!audio) return;
-  //   audio.pause();
-  //   audio.currentTime = 0;
-  // }
-      console.log('app render', options)
-
-
+  //useEffect > Play start beep if it is the first time play button is pressed.
+  useEffect(() => {
+    const startBeep = startBeepRef.current;
+    if (!startBeep) { console.log('no startBeepRef found'); return;};
+    if (isRunning && remaining === options[mode]) {
+      startBeep.play();
+    }
+    //Clean up
+    return () => {
+      startBeep.pause();
+      startBeep.currentTime = 0;
+    }
+    }, [isRunning])
+    //useEffect > Wenn mode sich wechseln, dann setIsRunning if autoplay is true && setRemaining
+    useEffect(() => {
+      if (!options.autoplay) {
+        setIsRunning(false);
+      }
+      setMode(mode);
+      setRemaining(options[mode]);
+      setOptions((prev) => {ls.set(POMODORO_STORAGE_KEY, { ...prev, lastMode: mode }); return ({ ...prev, lastMode: mode })});
+      
+    }, [mode]);
   return (
       <div className="container w-100 h-100 bg-1 d-flex justify-content-center align-items-center position-relative">
           <audio className="opacity-0 position-absolute" src={startBeep} id="start-beep" ref={startBeepRef}></audio>
@@ -126,14 +129,13 @@ function PomodoroApp() {
           <div className="pomodoro-wrapper container-sm border border-width-2 bg-2 py-3 px-2">
             <div className="row">
               <div className="d-flex justify-content-center align-items-center gap-2">
-                {/* <ModeButton handler={handleChangeMode} target={'session'} mode={mode}></ModeButton>
-                <ModeButton handler={handleChangeMode} target={'break'} mode={mode}></ModeButton>
-                <ModeButton handler={handleChangeMode} target={'long'} mode={mode}></ModeButton> */}
+                {POMODORO_MODES.map((pomodoroMode) => <ModeButton key={pomodoroMode} targetMode={pomodoroMode} currentMode={mode} setMode={setMode}></ModeButton>
+                )}
               </div>
             </div>
             <div className="row my-2">
-              <Clock options={options} mode={mode} alarmRef={startBeepRef} remaining={remaining} setRemaining={setRemaining} isRunning={isRunning} handleTimeOver={handleTimeOver}></Clock>
-              <h1 id="timer-label" className='text-center'>{mode.toUpperCase()}</h1>
+                <h1 className="text-center text-body-primary">{parseTime(remaining)}</h1>
+                <h1 id="timer-label" className='text-center'>{mode.toUpperCase()}</h1>
             </div>
             <div className="row">
               <div className="d-flex justify-content-center align-items-center">
@@ -143,7 +145,7 @@ function PomodoroApp() {
             </div>
             <div className="row">
               <div className="d-flex justify-content-center align-items-center">
-                {POMODORO_MODES.map((mode) => <ChangeTime min={options.min} max={options.max} isRunning={isRunning} modeTime={options[mode]} targetMode={mode} setOptions={setOptions} setRemaining={setRemaining} ></ChangeTime>)}
+                {POMODORO_MODES.map((pomodoroMode) => <ChangeTime min={options.min} max={options.max} isRunning={isRunning} modeTime={options[pomodoroMode]} targetMode={pomodoroMode} setOptions={setOptions} setRemaining={setRemaining} ></ChangeTime>)}
               </div>
             </div>
           </div>

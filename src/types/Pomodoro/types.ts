@@ -1,7 +1,7 @@
 export type TPomodoroOptions = {
     min: number,
     max: number,
-    mode: TPomodoroMode,
+    lastMode: TPomodoroMode,
     session: number,
     break: number,
     long: number,

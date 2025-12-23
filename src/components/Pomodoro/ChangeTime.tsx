@@ -86,7 +86,7 @@ export default function ChangeTime({ min, max, modeTime, isRunning, targetMode, 
     setOptions((prev) => {
         const newState = {...prev, [targetMode]: clamped };
         ls.set('pomodoro:options', newState);
-        if (prev.mode === targetMode) {
+        if (prev.lastMode === targetMode) {
             setRemaining(clamped);
         };
         return newState;
